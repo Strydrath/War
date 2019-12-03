@@ -628,13 +628,13 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
 			ChangePosition(24,3);
 			printf("Player 2: %d", Count(*HandB));
             DrawBattle(TableA->first,TableB->first);
-			if(turn%2==0){
+			if(turn%2==0&&NextA->first!=NULL){
 				Draw(NextA->first,1,5);
 			}
-			else{
+			else if(NextB->first!=NULL){
 				Draw(NextB->first,32,5);
 			}
-			sleep(2);
+			//sleep(2);
 		}
 		turn++;
 		if (TableA->first->power != TableB->first->power) {
@@ -651,38 +651,70 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
             x= 10;
 			y=5;
             while (test == 0) {
-				if (HandA->first == NULL && HandB->first == NULL) {
-					win = 'R';
-					break;
+				if(turn%2==1){
+					if(NextA->first!=NULL){
+						addCard(pullCard(NextA),TableA);
+					}
+					else{
+						break;
+					}
+					if (HandB->first != NULL) {
+						addCard(pullCard(HandB), TableB);
+					}
+					else {
+						break;
+					}
+					if (HandB->first != NULL) {
+						addCard(pullCard(HandB), TableB);
+					}
+					else {
+						break;
+					}
+					if (HandA->first != NULL) {
+						addCard(pullCard(HandA), TableA);
+					}
+					else {
+						break;
+					}
+					if(HandA->first!=NULL){
+						addCard(pullCard(HandA),NextA);
+					}
+					else{
+						break;
+					}
 				}
-				if (HandA->first != NULL) {
-					addCard(pullCard(HandA), TableA);
-				}
-				else {
-					break;
-				}
-				if (HandB->first != NULL) {
-					addCard(pullCard(HandB), TableB);
-				}
-				else {
-					break;
-				}
-				if (HandA->first != NULL) {
-					addCard(pullCard(HandA), TableA);
-				}
-				else {
-					break;
-				}
-				if (HandB->first != NULL) {
-					addCard(pullCard(HandB), TableB);
-				}
-				else {
-					break;
-				}
-				turn=turn+2;
-
-					(*moves)++;
-					(*moves)++;
+				else{
+						if(NextB->first!=NULL){
+							addCard(pullCard(NextB),TableB);
+						}
+						else{
+							break;
+						}
+						if (HandA->first != NULL) {
+							addCard(pullCard(HandA), TableA);
+						}
+						else {
+							break;
+						}
+						if (HandA->first != NULL) {
+							addCard(pullCard(HandA), TableA);
+						}
+						else {
+							break;
+						}
+						if (HandB->first != NULL) {
+							addCard(pullCard(HandB), TableB);
+						}
+						else {
+							break;
+						}	
+						if(HandB->first!=NULL){
+							addCard(pullCard(HandB),NextB);
+						}
+						else{
+							break;
+						}
+					}
 					FindEnd(TableA);
 					FindEnd(TableB);
 					if(show==1){
@@ -692,7 +724,7 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
 						ChangePosition(24,3);
 						printf("Player 2: %d", Count(*HandB)+Count(*NextB));
 						DrawWar(TableA->pointer,TableB->pointer,x,y);
-						Sleep(300);
+						//Sleep(300);
 						x=x+4;
 						y=y+4;
 					}
@@ -772,7 +804,7 @@ void SmartExperiment1() {
 			fill(&HandA, tab, 0, SIZE / 2);
 			fill(&HandB, tab, SIZE / 2, SIZE);
 			moves = 0;
-			wynik = SmartWar(&HandA, &HandB,&moves,'R','R','F',0);
+			wynik = SmartWar(&HandA, &HandB,&moves,'R','F','R',0);
 			if (wynik == 'R') {
 				liczR++;
 			}
@@ -806,12 +838,12 @@ void SmartExperiment2() {
 	deck HandA;
 	deck HandB;
 	card tab[52];
-	for (int i = 0; i < 10000; i++) {
+	for (int i = 0; i < 1000; i++) {
 		Shuffle(tab, SIZE);
 		fill(&HandA, tab, 0, SIZE / 2);
 		fill(&HandB, tab, SIZE / 2, SIZE);
 		moves = 0;
-		wynik = SmartWar(&HandA, &HandB,&moves,'R','F','R',0);
+		wynik = SmartWar(&HandA, &HandB,&moves,'R','P','F',0);
 		if (wynik == 'R') {
 			liczR++;
 		}
@@ -826,7 +858,7 @@ void SmartExperiment2() {
 		}
 		summoves += moves;
 	}
-	printf("%d\nA wygral: %d razy\nB wygral %d razy\nRemis byl %d razy\nSrednia ruchow: %f\npetla=%d\n",SIZE, liczA, liczB, liczR, summoves / 10000, liczW);
+	printf("%d\nA wygral: %d razy\nB wygral %d razy\nRemis byl %d razy\nSrednia ruchow: %f\npetla=%d\n",SIZE, liczA, liczB, liczR, summoves / 1000, liczW);
 	FreeHand(&HandA);
 	FreeHand(&HandB);
 }

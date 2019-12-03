@@ -21,7 +21,7 @@ int main()
 	deck HandA;
 	deck HandB;
 	deck Table;
-	int SIZE = 32;
+	int SIZE = 52;
 	int liczA = 0;
 	int liczB = 0;
 	int liczR = 0;
