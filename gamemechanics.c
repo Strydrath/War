@@ -81,6 +81,13 @@ void ShuffleWin(card* talia[], int SIZE) {
 		limit--;
 	}
 }
+void FreeHand(deck*Hand){
+	while(Hand->first!=NULL){
+		card* next = Hand->first->next;
+		free(Hand->first);
+		Hand->first = next;
+	}
+}
 void addCard(card* item, deck* cards) {
 	//card* tmp = cards->pointer;
 	if (cards->first == NULL) {
@@ -511,7 +518,7 @@ int peacefull(char* win, deck* Hand1, deck* Hand2, deck* Next1, deck* Next2, dec
 			addCard(pullCard(Hand1),Next1);
 		}
 		else{
-			if(Hand1->first->power<Hand2->first->next->power){
+			if(Hand1->first->power<Hand1->first->next->power){
 				addCard(pullCard(Hand1), Table1);
 				addCard(pullCard(Hand1),Next1);
 			}
@@ -523,17 +530,18 @@ int peacefull(char* win, deck* Hand1, deck* Hand2, deck* Next1, deck* Next2, dec
 	}
     return 0;
 }
-tactic chooseTactic(char option){
+int chooseTactic(char* win, deck* Hand1, deck* Hand2, deck* Next1, deck* Next2, deck* Table1, deck* Table2, char player,char option ){
 	if(option=='R'){
-		return &random;
+		return random(win,Hand1,Hand2,Next1,Next2, Table1,Table2, player);
 	}
 	else if(option=='F'){
-		return &furious;
+		return furious(win,Hand1,Hand2,Next1,Next2, Table1,Table2, player);
 	}
 	else{
-		return &peacefull;
+		return peacefull(win,Hand1,Hand2,Next1,Next2, Table1,Table2, player);
 	}
 }
+
 char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, char Tactic2, int show){
 	deck A;
 	deck B;
@@ -556,7 +564,7 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
 	while (HandA->first != NULL && HandB->first != NULL) {
         if(turn%2==0){
             if(tryb=='R'){
-                if(random(&win,HandA,HandB,NextA,NextB,TableA,TableB,'A')==1){
+                if(chooseTactic(&win,HandA,HandB,NextA,NextB,TableA,TableB,'A',Tactic1)==1){
                 break;
                 }
             }
@@ -597,12 +605,12 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
         }
         else{
             if(tryb=='R'){
-                if(random(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B')==1){
+                if(chooseTactic(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B',Tactic2)==1){
                     break;
                 }
             }
             else if( tryb=='P'){
-                if(random(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B')==1){
+                if(chooseTactic(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B', Tactic2)==1){
                     break;
                 }
             }
@@ -620,6 +628,12 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
 			ChangePosition(24,3);
 			printf("Player 2: %d", Count(*HandB));
             DrawBattle(TableA->first,TableB->first);
+			if(turn%2==0){
+				Draw(NextA->first,1,5);
+			}
+			else{
+				Draw(NextB->first,32,5);
+			}
 			sleep(2);
 		}
 		turn++;
@@ -637,100 +651,37 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
             x= 10;
 			y=5;
             while (test == 0) {
-                if(turn%2==0){
-                    if(tryb=='R'){
-						if(random(&win,HandA,HandB,NextA,NextB,TableA,TableB,'A')==1){
-							break;
-						}
-						if(random(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B')==1){
-							break;
-						}	
-					}
-					else if( tryb=='P'){
-						addCard(pullCard(NextB),TableB);
-						if(HandA->first->next!=NULL){
-							if(show==1){
-								ChangePosition(6,3);
-								printf("Player 1: %d", Count(*HandA));
-								ChangePosition(24,3);
-								printf("Player 2: %d", Count(*HandB));
-								ChangePosition(6,1);
-								printf("IT'S A WAR!!!" );
-								ChangePosition(6,x+10);
-								printf("CHOOSE WHICH CARD GOES FIRST: L or R");
-								Draw(HandA->first,3,x+11);
-								Draw(HandA->first->next,15,x+11);
-								DrawBack(x+18,y+2);
-								
-							}
-							choice=getch();
-							
-							if (choice=='L'){
-								addCard(pullCard(HandA),TableA);
-								addCard(pullCard(HandA),NextA);
-							}
-							else if(choice=='R'){
-								addCard(pullCard(HandA),NextA);
-								addCard(pullCard(HandA),TableA);
-							}
-							
-						}
-						if(random(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B')==1){
-							break;
-						}
-					} 
+				if (HandA->first == NULL && HandB->first == NULL) {
+					win = 'R';
+					break;
 				}
-				else{
-					if(tryb=='R'){
-						if(random(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B')==1){
-							break;
-						}
-						if(random(&win,HandA,HandB,NextA,NextB,TableA,TableB,'A')==1){
-							break;
-						}
-					}
-					else if( tryb=='P'){
-						if(random(&win,HandB,HandA,NextB,NextA,TableB,TableA,'B')==1){
-							break;
-						}
-						addCard(pullCard(NextB),TableB);
-						if(HandA->first->next!=NULL){
-							if(show==1){
-								textcolor(7,0);
-								ChangePosition(6,3);
-								printf("IT'S A WAR!!!" );
-								ChangePosition(4,y+8);
-								printf("CHOOSE YOUR CARD: L or R");
-								Draw(HandA->first,x+2,y+10);
-								Draw(HandA->first->next,x+12,y+10);
-								DrawBack(x+2,y+2);
-								DrawBack(x+18,y+2);
-								FindEnd(TableB);
-								Draw(TableB->pointer,x+20,y+4);
-								
-							}
-							choice=getch();
-							
-							if (choice=='L'){
-								addCard(pullCard(HandA),TableA);
-								addCard(pullCard(HandA),NextA);
-							}
-							else if(choice=='R'){
-								addCard(pullCard(HandA),NextA);
-								addCard(pullCard(HandA),TableA);
-							}
-							
-						}
-						else if(HandA->first!=NULL){
-							addCard(pullCard(HandA),TableA);
-						}
-						else{
-							break;
-						}
-					}	
+				if (HandA->first != NULL) {
+					addCard(pullCard(HandA), TableA);
 				}
-					turn=turn+2;
+				else {
+					break;
+				}
+				if (HandB->first != NULL) {
+					addCard(pullCard(HandB), TableB);
+				}
+				else {
+					break;
+				}
+				if (HandA->first != NULL) {
+					addCard(pullCard(HandA), TableA);
+				}
+				else {
+					break;
+				}
+				if (HandB->first != NULL) {
+					addCard(pullCard(HandB), TableB);
+				}
+				else {
+					break;
+				}
+				turn=turn+2;
 
+					(*moves)++;
 					(*moves)++;
 					FindEnd(TableA);
 					FindEnd(TableB);
@@ -774,7 +725,7 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
 	else if(win == 'Z'){
 		win =  'K';
 	}
-	if(show==1||show==0){
+	if(show==1){
         textcolor(0,0);
         system("cls");
         ChangePosition(20,10);
@@ -793,4 +744,89 @@ char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, ch
 
 	}
 	return win;
+}
+void SmartExperiment1() {
+	int SIZE = 20;
+	int liczA = 0;
+	int liczB = 0;
+	int liczR = 0;
+	int liczW = 0;
+	int rangaA = 0;
+	int rangaB = 0;
+	char wynik;
+	float moves = 0;
+	float summoves = 0;
+	deck HandA;
+	deck HandB;
+	card tab[52];
+	for (int k = 20; k < 53; k = k + 4) {
+		SIZE = k;
+		initTab(tab, SIZE);
+		liczA = 0;
+		liczB = 0;
+		liczR = 0;
+		liczW = 0;
+		summoves=0;
+		for (int i = 0; i < 10000; i++) {
+			Shuffle(tab, SIZE);
+			fill(&HandA, tab, 0, SIZE / 2);
+			fill(&HandB, tab, SIZE / 2, SIZE);
+			moves = 0;
+			wynik = SmartWar(&HandA, &HandB,&moves,'R','R','F',0);
+			if (wynik == 'R') {
+				liczR++;
+			}
+			else if (wynik == 'A') {
+				liczA++;
+			}
+			else if (wynik == 'B') {
+				liczB++;
+			}
+			else if (wynik == 'K') {
+				liczW++;
+			}
+			summoves += moves;
+		}
+		printf("%d\nA wygral: %d razy\nB wygral %d razy\nRemis byl %d razy\nSrednia ruchow: %f\npetla=%d\n",SIZE, liczA, liczB, liczR, summoves / 10000, liczW);
+		FreeHand(&HandA);
+		FreeHand(&HandB);
+	}
+}
+void SmartExperiment2() {
+	int SIZE = 52;
+	int liczA = 0;
+	int liczB = 0;
+	int liczR = 0;
+	int liczW = 0;
+	int rangaA = 0;
+	int rangaB = 0;
+	char wynik;
+	float moves = 0;
+	float summoves = 0;
+	deck HandA;
+	deck HandB;
+	card tab[52];
+	for (int i = 0; i < 10000; i++) {
+		Shuffle(tab, SIZE);
+		fill(&HandA, tab, 0, SIZE / 2);
+		fill(&HandB, tab, SIZE / 2, SIZE);
+		moves = 0;
+		wynik = SmartWar(&HandA, &HandB,&moves,'R','F','R',0);
+		if (wynik == 'R') {
+			liczR++;
+		}
+		else if (wynik == 'A') {
+			liczA++;
+		}
+		else if (wynik == 'B') {
+			liczB++;
+		}
+		else if (wynik == 'K') {
+			liczW++;
+		}
+		summoves += moves;
+	}
+	printf("%d\nA wygral: %d razy\nB wygral %d razy\nRemis byl %d razy\nSrednia ruchow: %f\npetla=%d\n",SIZE, liczA, liczB, liczR, summoves / 10000, liczW);
+	FreeHand(&HandA);
+	FreeHand(&HandB);
 }

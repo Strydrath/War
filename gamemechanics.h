@@ -22,4 +22,6 @@ void WarWin(deck* Winner, deck* TableWinner, deck* TableLooser, int* test);
 char War(deck* HandA, deck* HandB, char tryb, float *moves,int show);
 void experiment1();
 char SmartWar (deck* HandA, deck* HandB,float *moves, char tryb,char Tactic1, char Tactic2, int show);
+void SmartExperiment1();
+void FreeHand(deck*Hand);
 #endif

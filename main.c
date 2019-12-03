@@ -57,10 +57,13 @@ int main()
     fill(&HandB, tab, SIZE / 2, SIZE);
     //DrawBattle(HandA.first,HandB.first);
     //DrawWar(HandA.first,HandB.first, 10,5);
-    SmartWar(&HandA,&HandB,&moves,'R','R','R',1);
+    //SmartWar(&HandA,&HandB,&moves,'R','F','P',1);
+	SmartExperiment1();
     //SmartWar(&HandA, &HandB, &moves,'A',1);
     //printf("%c",War(&HandA, &HandB, tryb, &moves));*/
     //experiment1();
+	FreeHand(&HandA);
+	FreeHand(&HandB);
     scanf("%d",liczB);
     return 0;
 }
